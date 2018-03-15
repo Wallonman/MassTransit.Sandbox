@@ -5,6 +5,8 @@ VisualStudioVersion = 15.0.26730.12
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MassTransit.Sandbox", "MassTransit.Sandbox\MassTransit.Sandbox.csproj", "{8A46BE1C-B6EA-4703-B0AE-4F7ECEB6BE3C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MassTransit.Sandbox.ErrorHandling", "MassTransit.Sandbox.ErrorHandling\MassTransit.Sandbox.ErrorHandling.csproj", "{E0263541-DFCC-4777-8260-C1CC0AA6EF4B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{8A46BE1C-B6EA-4703-B0AE-4F7ECEB6BE3C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8A46BE1C-B6EA-4703-B0AE-4F7ECEB6BE3C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8A46BE1C-B6EA-4703-B0AE-4F7ECEB6BE3C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E0263541-DFCC-4777-8260-C1CC0AA6EF4B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E0263541-DFCC-4777-8260-C1CC0AA6EF4B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E0263541-DFCC-4777-8260-C1CC0AA6EF4B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E0263541-DFCC-4777-8260-C1CC0AA6EF4B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
