@@ -73,15 +73,18 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Consumer\BillOrderConsumer.cs" />
-    <Compile Include="Consumer\IOrderShipped.cs" />
-    <Compile Include="Consumer\IOrderSubmitted.cs" />
-    <Compile Include="Consumer\ISubmitOrder.cs" />
-    <Compile Include="Consumer\ShipOrderConsumer.cs" />
-    <Compile Include="Consumer\SubmitOrderConsumer.cs" />
+    <Compile Include="Step1\ProducerConsumer.cs" />
+    <Compile Include="Step1\Consumers\BillOrderConsumer.cs" />
+    <Compile Include="Step1\Contracts\IOrderShipped.cs" />
+    <Compile Include="Step1\Contracts\IOrderSubmitted.cs" />
+    <Compile Include="Step1\Contracts\ISubmitOrder.cs" />
+    <Compile Include="Step1\Consumers\ShipOrderConsumer.cs" />
+    <Compile Include="Step1\Consumers\SubmitOrderConsumer.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SendEnpoint\Class1.cs" />
+    <Compile Include="Step2\Consumers\FaultConsumer.cs" />
+    <Compile Include="Step2\Consumers\GenerateExceptionConsumer.cs" />
+    <Compile Include="Step2\HandlingExceptions.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
