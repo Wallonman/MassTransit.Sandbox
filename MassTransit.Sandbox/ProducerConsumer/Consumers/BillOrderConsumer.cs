@@ -1,8 +1,8 @@
 using System;
 using System.Threading.Tasks;
-using MassTransit.Sandbox.Step1.Contracts;
+using MassTransit.Sandbox.ProducerConsumer.Contracts;
 
-namespace MassTransit.Sandbox.Step1.Consumers
+namespace MassTransit.Sandbox.ProducerConsumer.Consumers
 {
     public class BillOrderConsumer :
         IConsumer<IOrderSubmitted>

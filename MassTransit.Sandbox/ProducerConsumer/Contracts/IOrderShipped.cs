@@ -1,6 +1,6 @@
 using System;
 
-namespace MassTransit.Sandbox.Step1.Contracts
+namespace MassTransit.Sandbox.ProducerConsumer.Contracts
 {
     public interface IOrderShipped
     {

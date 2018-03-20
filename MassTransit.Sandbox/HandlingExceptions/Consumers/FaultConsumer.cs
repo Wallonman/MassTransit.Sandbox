@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Threading.Tasks;
-using MassTransit.Sandbox.Step1.Contracts;
+using MassTransit.Sandbox.ProducerConsumer.Contracts;
 
-namespace MassTransit.Sandbox.Step2.Consumers
+namespace MassTransit.Sandbox.HandlingExceptions.Consumers
 {
     public class FaultConsumer :
         IConsumer<Fault<ISubmitOrder>>

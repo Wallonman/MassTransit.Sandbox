@@ -1,17 +1,12 @@
 using System;
-using System.Threading;
-using System.Threading.Tasks;
 using GreenPipes;
-using MassTransit.Sandbox.Step1.Contracts;
-using MassTransit.Sandbox.Step2.Consumers;
+using MassTransit.Sandbox.HandlingExceptions.Consumers;
+using MassTransit.Sandbox.ProducerConsumer.Contracts;
 
-namespace MassTransit.Sandbox.Step2
+namespace MassTransit.Sandbox.HandlingExceptions
 {
     public static class HandlingExceptions
     {
-        private static Task<ISendEndpoint> _sendEndpointTask;
-        private static Task<ISendEndpoint> _sendEndpointTaskWithRetry;
-        private static Task<ISendEndpoint> _sendEndpointTaskIgnoreRetry;
 
         public static void Start()
         {
@@ -43,7 +38,8 @@ namespace MassTransit.Sandbox.Step2
                          * Queue : submit_order_queue_error
                          *         no binding, the message is moved by the middleware to this queue when the exception is raised
                          */
-                        _sendEndpointTask.Result.Send<ISubmitOrder>(new { });
+                        busControl.GetSendEndpoint(new Uri("rabbitmq://localhost/submit_order_queue")) // Exchange : submit_order_queue => no binding
+                                  .Result.Send<ISubmitOrder>(new { });
                         break;
 
                     case "2":
@@ -54,7 +50,8 @@ namespace MassTransit.Sandbox.Step2
                          *            and the exeption is raised
                          * Queue : none
                          */
-                        _sendEndpointTask.Result.Send<ISubmitOrder>(new { }
+                        busControl.GetSendEndpoint(new Uri("rabbitmq://localhost/submit_order_queue"))
+                                  .Result.Send<ISubmitOrder>(new { }
                         , context => context.FaultAddress = new Uri("rabbitmq://localhost/submit_order_custom_error"));
                         break;
 
@@ -66,7 +63,8 @@ namespace MassTransit.Sandbox.Step2
                          *            and the exeption is raised
                          * Queue : none
                          */
-                        _sendEndpointTaskWithRetry.Result.Send<ISubmitOrder>(new { });
+                        busControl.GetSendEndpoint(new Uri("rabbitmq://localhost/submit_order_queue_retry")) // Exchange : submit_order_queue_retry => no binding
+                                  .Result.Send<ISubmitOrder>(new { });
                         break;
 
                     case "4":
@@ -77,7 +75,8 @@ namespace MassTransit.Sandbox.Step2
                          *            and the exeption is raised
                          * Queue : none
                          */
-                        _sendEndpointTaskIgnoreRetry.Result.Send<ISubmitOrder>(new { });
+                        busControl.GetSendEndpoint(new Uri("rabbitmq://localhost/submit_order_queue_retry_ignored"))
+                                  .Result.Send<ISubmitOrder>(new { });
                         break;
 
                 }
@@ -96,7 +95,7 @@ namespace MassTransit.Sandbox.Step2
                 });
 
                 // general bus configration for retry Policy
-                cfg.UseRetry(configurator => configurator.Immediate(1));
+                cfg.UseRetry(configurator => configurator.None());
 
                 cfg.ReceiveEndpoint(host, "submit_order_queue", e =>
                 {
@@ -124,29 +123,19 @@ namespace MassTransit.Sandbox.Step2
                 cfg.ReceiveEndpoint(host, "submit_order_queue_retry_ignored", e =>
                 {
                     // override the general retry policy
-                    e.UseRetry(configurator =>
+                    e.Consumer<GenerateExceptionConsumer>(consumerConfig =>
                     {
-                        configurator.Immediate(5);
-                        configurator.Ignore<Exception>(
-                            exception => exception.Message.Equals("Very bad things happened"));
+                        consumerConfig.UseRetry(configurator =>
+                        {
+                            configurator.Interval(10, TimeSpan.FromMilliseconds(200));
+                            configurator.Ignore<ArgumentException>();
+                            // exception => exception.Message.Equals("Very bad things happened"));
+                        });
                     });
-                    e.Consumer<GenerateExceptionConsumer>();
                 });
 
 
             });
-
-
-            /*
-             * Creates :
-             * Exchange : submit_order_queue => no binding
-             * Exchange : submit_order_queue_retry => no binding
-             * Queue : none
-             */
-            _sendEndpointTask = bus.GetSendEndpoint(new Uri("rabbitmq://localhost/submit_order_queue"));
-            _sendEndpointTaskWithRetry = bus.GetSendEndpoint(new Uri("rabbitmq://localhost/submit_order_queue_retry"));
-            _sendEndpointTaskIgnoreRetry = bus.GetSendEndpoint(new Uri("rabbitmq://localhost/submit_order_queue_retry_ignored"));
-
 
             return bus;
         }

@@ -1,9 +1,9 @@
 using System;
 using System.Threading.Tasks;
-using MassTransit.Sandbox.Step1.Consumers;
-using MassTransit.Sandbox.Step1.Contracts;
+using MassTransit.Sandbox.ProducerConsumer.Consumers;
+using MassTransit.Sandbox.ProducerConsumer.Contracts;
 
-namespace MassTransit.Sandbox.Step1
+namespace MassTransit.Sandbox.ProducerConsumer
 {
     public static class ProducerConsumer
     {
