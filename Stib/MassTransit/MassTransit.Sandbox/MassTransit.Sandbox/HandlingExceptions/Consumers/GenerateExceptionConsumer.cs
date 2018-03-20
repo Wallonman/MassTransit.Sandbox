@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Threading.Tasks;
-using MassTransit.Sandbox.Step1.Contracts;
+using MassTransit.Sandbox.ProducerConsumer.Contracts;
 
-namespace MassTransit.Sandbox.Step1.Consumers
+namespace MassTransit.Sandbox.HandlingExceptions.Consumers
 {
-    public class SubmitOrderConsumer :
+    public class GenerateExceptionConsumer :
         IConsumer<ISubmitOrder>
     {
         public async Task Consume(ConsumeContext<ISubmitOrder> context)
@@ -13,15 +13,12 @@ namespace MassTransit.Sandbox.Step1.Consumers
 
             /*
              * Creates :
-             * Exchange : MassTransit.Sandbox.Step1.Contracts:IOrderSubmitted => no binding
+             * Exchange : submit_order_queue_error => binding to queue submit_order_queue_error
              *            created at the moment this consumer is activated by an incoming message
-             * Queue : none
+             *            and the exeption is raised
+             * Queue : submit_order_queue_error
              */
-            await context.Publish<IOrderSubmitted>(new
-            {
-                OrderId = context.Message.OrderId,
-                OrderDate = context.Message.OrderDate,
-            });
+            throw new ArgumentException("Very bad things happened");
         }
     }
 }

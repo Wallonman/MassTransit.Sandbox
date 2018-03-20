@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading.Tasks;
-using MassTransit.Sandbox.Step2;
 
 namespace MassTransit.Sandbox.ErrorHandling
 {
@@ -10,7 +9,7 @@ namespace MassTransit.Sandbox.ErrorHandling
 
         static void Main(string[] args)
         {
-            HandlingExceptions.Start();
+            HandlingExceptions.HandlingExceptions.Start();
         }
 
 

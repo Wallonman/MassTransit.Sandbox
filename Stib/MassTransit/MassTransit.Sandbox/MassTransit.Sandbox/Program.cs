@@ -1,12 +1,10 @@
-﻿using MassTransit.Sandbox.Step1;
-
-namespace MassTransit.Sandbox
+﻿namespace MassTransit.Sandbox
 {
     internal class Program
     {
         private static void Main(string[] args)
         {
-            ProducerConsumer.Start();
+            ProducerConsumer.ProducerConsumer.Start();
         }
     }
 }
