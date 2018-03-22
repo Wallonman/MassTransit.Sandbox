@@ -1,17 +1,12 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using MassTransit.Sandbox.HandlingExceptions;
 
 namespace MassTransit.Sandbox.ErrorHandling
 {
-
-    class Program
+    internal class Program
     {
-
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
-            HandlingExceptions.HandlingExceptions.Start();
+            HandlingExceptionsBus.Start();
         }
-
-
     }
 }

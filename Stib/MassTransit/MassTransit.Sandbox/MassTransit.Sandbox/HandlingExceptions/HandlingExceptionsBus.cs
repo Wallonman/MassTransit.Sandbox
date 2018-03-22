@@ -5,7 +5,7 @@ using MassTransit.Sandbox.ProducerConsumer.Contracts;
 
 namespace MassTransit.Sandbox.HandlingExceptions
 {
-    public static class HandlingExceptions
+    public static class HandlingExceptionsBus
     {
 
         public static void Start()

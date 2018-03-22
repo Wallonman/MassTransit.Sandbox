@@ -1,15 +1,15 @@
 using System;
+using System.Runtime.Remoting.Messaging;
 using System.Threading.Tasks;
 using GreenPipes;
 using MassTransit.Audit;
-using MassTransit.Sandbox.ProducerConsumer.Consumers;
+using MassTransit.Sandbox.Audit.Consumers;
 using MassTransit.Sandbox.ProducerConsumer.Contracts;
 
 namespace MassTransit.Sandbox.Audit
 {
-    public static class Audit
+    public static class AuditBus
     {
-        private static IMessageAuditStore _auditStore;
 
         public static void Start()
         {
@@ -19,21 +19,15 @@ namespace MassTransit.Sandbox.Audit
             do
             {
                 Console.WriteLine("'q' to exit");
-                Console.WriteLine("'1' -> Send ");
                 Console.Write("> ");
                 var value = Console.ReadLine();
 
                 if ("q".Equals(value, StringComparison.OrdinalIgnoreCase))
                     break;
 
-                switch (value)
-                {
-                    case "1":
-                        busControl.GetSendEndpoint(new Uri("rabbitmq://localhost/submit_order_queue")) 
-                                  .Result.Send<ISubmitOrder>(new { });
-                        break;
+                busControl.GetSendEndpoint(new Uri("rabbitmq://localhost/submit_order_queue")) 
+                            .Result.Send<ISubmitOrder>(new { });
 
-                }
             } while (true);
             busControl.Stop();
         }
@@ -56,8 +50,10 @@ namespace MassTransit.Sandbox.Audit
 
             });
 
-            _auditStore = new AuditStore();
-            bus.ConnectSendAuditObservers(_auditStore);
+            bus.ConnectSendAuditObservers(new AuditStore("SendAuditObserver"));
+            bus.ConnectConsumeAuditObserver(new AuditStore("ConsumeAuditObserver"));
+//            bus.ConnectConsumeAuditObserver(new AuditStore("ConsumeAuditObserver"), 
+//                conf => conf.Include ... // todo : how to pass arg func<T, bool> ?
 
             return bus;
         }

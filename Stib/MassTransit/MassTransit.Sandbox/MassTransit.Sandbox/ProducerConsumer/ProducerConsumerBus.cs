@@ -5,7 +5,7 @@ using MassTransit.Sandbox.ProducerConsumer.Contracts;
 
 namespace MassTransit.Sandbox.ProducerConsumer
 {
-    public static class ProducerConsumer
+    public static class ProducerConsumerBus
     {
         private static Task<ISendEndpoint> _sendEndpointTask;
 

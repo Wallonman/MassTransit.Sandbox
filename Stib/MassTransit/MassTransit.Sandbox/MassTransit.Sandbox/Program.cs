@@ -4,7 +4,7 @@
     {
         private static void Main(string[] args)
         {
-            ProducerConsumer.ProducerConsumer.Start();
+            ProducerConsumer.ProducerConsumerBus.Start();
         }
     }
 }
