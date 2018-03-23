@@ -1,5 +1,4 @@
 using System;
-using MassTransit.Sandbox.ProducerConsumer.Contracts;
 
 namespace MassTransit.Sandbox.Scheduling
 {
@@ -14,7 +13,7 @@ namespace MassTransit.Sandbox.Scheduling
             do
             {
                 Console.WriteLine("'q' to exit");
-                Console.WriteLine("'1' -> Send ");
+                Console.WriteLine("'1' -> Send Notification");
                 Console.Write("> ");
                 var value = Console.ReadLine();
 
@@ -24,17 +23,18 @@ namespace MassTransit.Sandbox.Scheduling
                 switch (value)
                 {
                     case "1":
-                        busControl.GetSendEndpoint(new Uri("rabbitmq://localhost/submit_order_queue")) 
-                                  .Result.Send<ISubmitOrder>(new { });
+                        busControl.GetSendEndpoint(new Uri("rabbitmq://localhost/schedule_notification_queue")) 
+                                  .Result.Send<IScheduleNotification>(new { DeliveryTime = DateTime.Now.AddSeconds(5), EmailAddress = "test@yopmail.com", Body = "Hello World!" });
 
-                        /*var schedulerEndpoint = bus.GetSendEndpoint(new Uri("rabbitmq://localhost/submit_order_queue"));
+/*
                          schedulerEndpoint.ScheduleSend(_notificationService,
                             context.Message.DeliveryTime,
                             new SendNotification
                             {
                                 EmailAddress = context.Message.EmailAddress,
                                 Body = context.Message.Body
-                            });*/
+                            });
+*/
                         break;
 
                 }
@@ -52,11 +52,21 @@ namespace MassTransit.Sandbox.Scheduling
                     h.Password("guest");
                 });
 
+                /*
+                 * Creates :
+                 *    Exchange : quartz => no binding
+                 *    Note : the MassTransit.QuartzService ust be installed to consume those messages
+                 */
                 cfg.UseMessageScheduler(new Uri("rabbitmq://localhost/quartz"));
 
-                cfg.ReceiveEndpoint(host, "submit_order_queue", e =>
+                cfg.ReceiveEndpoint(host, "schedule_notification_queue", e =>
                 {
-//                    e.Consumer<SubmitOrderConsumer>();
+                    e.Consumer<ScheduleNotificationConsumer>();
+                });
+
+                cfg.ReceiveEndpoint(host, "notification_queue", e =>
+                {
+                    e.Consumer<NotificationConsumer>();
                 });
 
             });

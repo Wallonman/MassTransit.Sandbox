@@ -88,6 +88,10 @@
     <Compile Include="HandlingExceptions\Consumers\FaultConsumer.cs" />
     <Compile Include="HandlingExceptions\Consumers\GenerateExceptionConsumer.cs" />
     <Compile Include="HandlingExceptions\HandlingExceptionsBus.cs" />
+    <Compile Include="Scheduling\ISendNotification.cs" />
+    <Compile Include="Scheduling\IScheduleNotification.cs" />
+    <Compile Include="Scheduling\NotificationConsumer.cs" />
+    <Compile Include="Scheduling\ScheduleNotificationConsumer.cs" />
     <Compile Include="Scheduling\SchedulingBus.cs" />
   </ItemGroup>
   <ItemGroup>
