@@ -1,19 +1,32 @@
 using System;
+using System.Threading.Tasks;
+using GreenPipes;
+using MassTransit.QuartzIntegration;
+using MassTransit.Util;
+using Quartz;
+using Quartz.Impl;
 
 namespace MassTransit.Sandbox.Scheduling
 {
     public static class SchedulingBus
     {
+        private static IScheduler _scheduler;
 
         public static void Start()
         {
+            _scheduler = CreateScheduler();
+
             var busControl = ConfigureBus();
+
+            _scheduler.JobFactory = new MassTransitJobFactory(busControl);
+            _scheduler.Start();
 
             busControl.Start();
             do
             {
                 Console.WriteLine("'q' to exit");
-                Console.WriteLine("'1' -> Send Notification");
+                Console.WriteLine("'1' -> Schedule Notification");
+                Console.WriteLine("'2' -> Send Notification");
                 Console.Write("> ");
                 var value = Console.ReadLine();
 
@@ -23,20 +36,24 @@ namespace MassTransit.Sandbox.Scheduling
                 switch (value)
                 {
                     case "1":
-                        busControl.GetSendEndpoint(new Uri("rabbitmq://localhost/schedule_notification_queue")) 
-                                  .Result.Send<IScheduleNotification>(new { DeliveryTime = DateTime.Now.AddSeconds(5), EmailAddress = "test@yopmail.com", Body = "Hello World!" });
-
-/*
-                         schedulerEndpoint.ScheduleSend(_notificationService,
-                            context.Message.DeliveryTime,
-                            new SendNotification
+                        busControl.GetSendEndpoint(new Uri("rabbitmq://localhost/schedule_notification_queue"))
+                            .Result.Send<IScheduleNotification>(new
                             {
-                                EmailAddress = context.Message.EmailAddress,
-                                Body = context.Message.Body
+                                DeliveryTime = DateTime.Now.AddSeconds(5),
+                                EmailAddress = "test@yopmail.com",
+                                Body = "Hello World!"
                             });
-*/
                         break;
-
+                    case "2":
+                        busControl.GetSendEndpoint(new Uri("rabbitmq://localhost/quartz"))
+                            .Result.ScheduleSend(new Uri("rabbitmq://localhost/notification_queue"),
+                                TimeSpan.FromSeconds(5),
+                                 new ScheduleNotificationConsumer.SendNotificationCommand
+                                 {
+                                    EmailAddress = "test@yopmail.com",
+                                    Body = "Hello World!",
+                                });
+                        break;
                 }
             } while (true);
             busControl.Stop();
@@ -52,6 +69,7 @@ namespace MassTransit.Sandbox.Scheduling
                     h.Password("guest");
                 });
 
+
                 /*
                  * Creates :
                  *    Exchange : quartz => no binding
@@ -59,19 +77,32 @@ namespace MassTransit.Sandbox.Scheduling
                  */
                 cfg.UseMessageScheduler(new Uri("rabbitmq://localhost/quartz"));
 
-                cfg.ReceiveEndpoint(host, "schedule_notification_queue", e =>
+                cfg.ReceiveEndpoint(host, "quartz", e =>
                 {
-                    e.Consumer<ScheduleNotificationConsumer>();
+                    var partitioner = e.CreatePartitioner(1);
+
+                    e.Consumer(() => new ScheduleMessageConsumer(_scheduler));
+//                    , x =>
+//                                x.Message<ScheduleMessage>(m => m.UsePartitioner(partitioner, p => p.Message.CorrelationId)));
                 });
 
-                cfg.ReceiveEndpoint(host, "notification_queue", e =>
-                {
-                    e.Consumer<NotificationConsumer>();
-                });
 
+                cfg.ReceiveEndpoint(host, "schedule_notification_queue",
+                    e => { e.Consumer<ScheduleNotificationConsumer>(); });
+
+                cfg.ReceiveEndpoint(host, "notification_queue", e => { e.Consumer<NotificationConsumer>(); });
             });
 
             return bus;
+        }
+
+        static IScheduler CreateScheduler()
+        {
+            ISchedulerFactory schedulerFactory = new StdSchedulerFactory();
+
+            var scheduler = TaskUtil.Await(() => schedulerFactory.GetScheduler());
+
+            return scheduler;
         }
     }
 }

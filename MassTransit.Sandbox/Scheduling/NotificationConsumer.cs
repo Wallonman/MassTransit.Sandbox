@@ -8,7 +8,7 @@ namespace MassTransit.Sandbox.Scheduling
 
         public async Task Consume(ConsumeContext<ISendNotification> context)
         {
-            await Console.Out.WriteLineAsync($"Received at {DateTime.Now} a SendNotification: {context.Message.EmailAddress}");
+            await Console.Out.WriteLineAsync($"NotificationConsumer> Received at {DateTime.Now} a SendNotification: {context.Message.EmailAddress}");
 
         }
     }
