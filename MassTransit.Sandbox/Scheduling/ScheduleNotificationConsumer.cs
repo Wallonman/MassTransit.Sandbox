@@ -3,6 +3,11 @@ using System.Threading.Tasks;
 
 namespace MassTransit.Sandbox.Scheduling
 {
+    /// <summary>
+    /// Consumes the message from the schedule_notification_queue 
+    /// Then Sends a SendNotificationCommand schedule for 5 seconds later
+    /// </summary>
+    /// <seealso cref="MassTransit.IConsumer{MassTransit.Sandbox.Scheduling.IScheduleNotification}" />
     internal class ScheduleNotificationConsumer : IConsumer<IScheduleNotification>
     {
 

@@ -1,7 +1,9 @@
 using System;
 using System.Threading.Tasks;
 using GreenPipes;
+using MassTransit.Log4NetIntegration;
 using MassTransit.QuartzIntegration;
+using MassTransit.Scheduling;
 using MassTransit.Util;
 using Quartz;
 using Quartz.Impl;
@@ -11,23 +13,26 @@ namespace MassTransit.Sandbox.Scheduling
     public static class SchedulingBus
     {
         private static IScheduler _scheduler;
+        private static readonly Uri SchedulerAddress = new Uri("rabbitmq://localhost/quartz");
+        private static ScheduledRecurringMessage<ScheduleNotificationConsumer.SendNotificationCommand> _recurringScheduledMessage;
 
-        public static void Start()
+        public static async void Start()
         {
             _scheduler = CreateScheduler();
 
             var busControl = ConfigureBus();
 
             _scheduler.JobFactory = new MassTransitJobFactory(busControl);
-            _scheduler.Start();
+            await _scheduler.Start();
 
             busControl.Start();
+            Console.WriteLine("'q' to exit");
+            Console.WriteLine("'1' -> Scheduling a message from a consumer");
+            Console.WriteLine("'2' -> Scheduling a message from the bus");
+            Console.WriteLine("'3' -> Scheduling a recurring message");
+            Console.WriteLine("'4' -> Cancel Scheduling a recurring message");
             do
             {
-                Console.WriteLine("'q' to exit");
-                Console.WriteLine("'1' -> Schedule Notification");
-                Console.WriteLine("'2' -> Send Notification");
-                Console.Write("> ");
                 var value = Console.ReadLine();
 
                 if ("q".Equals(value, StringComparison.OrdinalIgnoreCase))
@@ -36,7 +41,13 @@ namespace MassTransit.Sandbox.Scheduling
                 switch (value)
                 {
                     case "1":
-                        busControl.GetSendEndpoint(new Uri("rabbitmq://localhost/schedule_notification_queue"))
+                        /*
+                         * Scheduling a message from a consumer
+                         * Push a IScheduleNotification message to the schedule_notification_queue
+                         * The consumer will trigger a scheduled send
+                         */
+                        Console.Write("Sending IScheduleNotification");
+                        await busControl.GetSendEndpoint(new Uri("rabbitmq://localhost/schedule_notification_queue"))
                             .Result.Send<IScheduleNotification>(new
                             {
                                 DeliveryTime = DateTime.Now.AddSeconds(5),
@@ -45,17 +56,54 @@ namespace MassTransit.Sandbox.Scheduling
                             });
                         break;
                     case "2":
-                        busControl.GetSendEndpoint(new Uri("rabbitmq://localhost/quartz"))
+                        /*
+                         * Scheduling a message from the bus
+                         * Sends a SendNotificationCommand message to the notification_queue
+                         * scheduled for 5 seconds later
+                         */
+                        Console.WriteLine("Sending SendNotificationCommand in 5 seconds");
+                        await busControl.GetSendEndpoint(SchedulerAddress)
                             .Result.ScheduleSend(new Uri("rabbitmq://localhost/notification_queue"),
                                 TimeSpan.FromSeconds(5),
-                                 new ScheduleNotificationConsumer.SendNotificationCommand
-                                 {
+                                new ScheduleNotificationConsumer.SendNotificationCommand
+                                {
                                     EmailAddress = "test@yopmail.com",
                                     Body = "Hello World!",
                                 });
                         break;
+                    case "3":
+                        /*
+                         * Scheduling a recurring message
+                         * Sends a SendNotificationCommand message to the notification_queue
+                         * scheduled recurring evry 5 seconds
+                         */
+                        Console.WriteLine("Sending SendNotificationCommand every 5 seconds");
+                        _recurringScheduledMessage = await busControl.GetSendEndpoint(SchedulerAddress)
+                            .Result.ScheduleRecurringSend(new Uri("rabbitmq://localhost/notification_queue"), 
+                            new PollExternalSystemSchedule(), 
+                                new ScheduleNotificationConsumer.SendNotificationCommand
+                                {
+                                    EmailAddress = "test@yopmail.com",
+                                    Body = "Hello World!",
+                                });
+                        break;
+
+                    case "4":
+                        if (_recurringScheduledMessage != null)
+                        {
+                            Console.WriteLine("Cancel sending SendNotificationCommand every 5 seconds");
+
+                            await busControl.CancelScheduledRecurringSend(_recurringScheduledMessage);
+                            _recurringScheduledMessage = null;
+                        }
+                        else
+                            Console.WriteLine("No schedule to cancel, please press 3 before");
+
+                        break;
                 }
             } while (true);
+
+            await _scheduler.Shutdown();
             busControl.Stop();
         }
 
@@ -69,27 +117,40 @@ namespace MassTransit.Sandbox.Scheduling
                     h.Password("guest");
                 });
 
+                cfg.UseLog4Net();
 
                 /*
                  * Creates :
                  *    Exchange : quartz => no binding
-                 *    Note : the MassTransit.QuartzService ust be installed to consume those messages
+                 *    Note : the MassTransit.QuartzService must be installed to consume those messages
                  */
-                cfg.UseMessageScheduler(new Uri("rabbitmq://localhost/quartz"));
+                cfg.UseMessageScheduler(SchedulerAddress);
 
-                cfg.ReceiveEndpoint(host, "quartz", e =>
-                {
-                    var partitioner = e.CreatePartitioner(1);
+                /*
+                 * Creates:
+                 *      Queue : quartz with a binding from the exchange "quartz"
+                 *      Exchange : 
+                 *          - MassTransit.Scheduling:ScheduleMessage
+                 *          - MassTransit.Scheduling:ScheduleRecurringMessage
+                 */
+                cfg.ReceiveEndpoint(host, "quartz",
+                    e => { e.Consumer(() => new ScheduleMessageConsumer(_scheduler)); });
 
-                    e.Consumer(() => new ScheduleMessageConsumer(_scheduler));
-//                    , x =>
-//                                x.Message<ScheduleMessage>(m => m.UsePartitioner(partitioner, p => p.Message.CorrelationId)));
-                });
-
-
+                /*
+                 * Creates :
+                 * Exchange : schedule_notification_queue => queue schedule_notification_queue
+                 * Exchange : MassTransit.Sandbox.Scheduling:IScheduleNotification => exchange schedule_notification_queue
+                 * Queue : schedule_notification_queue
+                 */
                 cfg.ReceiveEndpoint(host, "schedule_notification_queue",
                     e => { e.Consumer<ScheduleNotificationConsumer>(); });
 
+                /*
+                 * Creates :
+                 * Exchange : notification_queue => queue notification_queue
+                 * Exchange : MassTransit.Sandbox.Scheduling:ISendNotification => exchange notification_queue
+                 * Queue : notification_queue
+                 */
                 cfg.ReceiveEndpoint(host, "notification_queue", e => { e.Consumer<NotificationConsumer>(); });
             });
 
