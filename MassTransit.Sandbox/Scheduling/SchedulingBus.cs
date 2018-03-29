@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using GreenPipes;
+using log4net.Config;
 using MassTransit.Log4NetIntegration;
 using MassTransit.QuartzIntegration;
 using MassTransit.Scheduling;
@@ -12,18 +13,25 @@ namespace MassTransit.Sandbox.Scheduling
 {
     public static class SchedulingBus
     {
-        private static IScheduler _scheduler;
         private static readonly Uri SchedulerAddress = new Uri("rabbitmq://localhost/quartz");
         private static ScheduledRecurringMessage<ScheduleNotificationConsumer.SendNotificationCommand> _recurringScheduledMessage;
 
         public static async void Start()
         {
-            _scheduler = CreateScheduler();
+            // load the Log4Net config from app.config
+            XmlConfigurator.Configure();
 
-            var busControl = ConfigureBus();
+            // create the scheduler
+            var scheduler = CreateScheduler();
 
-            _scheduler.JobFactory = new MassTransitJobFactory(busControl);
-            await _scheduler.Start();
+            // configure the bus using the scheduler
+            var busControl = ConfigureBus(scheduler);
+
+            // set the Quartz JobFactory, that will give the scheduler the ability to create MT jobs
+            scheduler.JobFactory = new MassTransitJobFactory(busControl);
+
+            // now start the scheduler
+            await scheduler.Start();
 
             busControl.Start();
             Console.WriteLine("'q' to exit");
@@ -89,6 +97,13 @@ namespace MassTransit.Sandbox.Scheduling
                         break;
 
                     case "4":
+                        /*
+                         * Cancel Scheduling the recurring message
+                         * todo: Cancelling a recurring send doesn't work! Why?
+                         * An exchange "MassTransit.Scheduling:CancelScheduledRecurringMessage" is created
+                         * but without any binding.
+                         * When cancelling a message is pushed in this exchange -> without any effect
+                         */
                         if (_recurringScheduledMessage != null)
                         {
                             Console.WriteLine("Cancel sending SendNotificationCommand every 5 seconds");
@@ -103,11 +118,11 @@ namespace MassTransit.Sandbox.Scheduling
                 }
             } while (true);
 
-            await _scheduler.Shutdown();
+            await scheduler.Shutdown();
             busControl.Stop();
         }
 
-        private static IBusControl ConfigureBus()
+        private static IBusControl ConfigureBus(IScheduler scheduler)
         {
             var bus = Bus.Factory.CreateUsingRabbitMq(cfg =>
             {
@@ -134,7 +149,7 @@ namespace MassTransit.Sandbox.Scheduling
                  *          - MassTransit.Scheduling:ScheduleRecurringMessage
                  */
                 cfg.ReceiveEndpoint(host, "quartz",
-                    e => { e.Consumer(() => new ScheduleMessageConsumer(_scheduler)); });
+                    e => { e.Consumer(() => new ScheduleMessageConsumer(scheduler)); });
 
                 /*
                  * Creates :
@@ -157,6 +172,10 @@ namespace MassTransit.Sandbox.Scheduling
             return bus;
         }
 
+        /// <summary>
+        /// Creates the scheduler.
+        /// </summary>
+        /// <returns></returns>
         static IScheduler CreateScheduler()
         {
             ISchedulerFactory schedulerFactory = new StdSchedulerFactory();

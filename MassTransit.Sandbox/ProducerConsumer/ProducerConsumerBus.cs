@@ -1,5 +1,8 @@
 using System;
 using System.Threading.Tasks;
+using log4net;
+using log4net.Config;
+using MassTransit.Log4NetIntegration;
 using MassTransit.Sandbox.ProducerConsumer.Consumers;
 using MassTransit.Sandbox.ProducerConsumer.Contracts;
 
@@ -8,9 +11,13 @@ namespace MassTransit.Sandbox.ProducerConsumer
     public static class ProducerConsumerBus
     {
         private static Task<ISendEndpoint> _sendEndpointTask;
+        private static ILog _logger;
 
         public static void Start()
         {
+            // load the Log4Net config from app.config
+            XmlConfigurator.Configure();
+
             var busControl = ConfigureBus();
 
             busControl.Start();
@@ -22,6 +29,9 @@ namespace MassTransit.Sandbox.ProducerConsumer
                 if ("q".Equals(value, StringComparison.OrdinalIgnoreCase))
                     break;
 
+                _logger = log4net.LogManager.GetLogger(typeof(ProducerConsumerBus));
+
+                _logger.Info("Sending ISubmitOrder message");
                 _sendEndpointTask.Result.Send<ISubmitOrder>(new
                 {
                     OrderId = value,
@@ -41,6 +51,9 @@ namespace MassTransit.Sandbox.ProducerConsumer
                     h.Username("guest");
                     h.Password("guest");
                 });
+
+                // request the log to Log4Net
+                cfg.UseLog4Net();
 
                 cfg.ReceiveEndpoint(host, "submit_order_queue", e =>
                 {

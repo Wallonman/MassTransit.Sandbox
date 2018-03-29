@@ -87,6 +87,12 @@
     <Compile Include="Audit\AuditBus.cs" />
     <Compile Include="Audit\AuditStore.cs" />
     <Compile Include="Audit\Consumers\SubmitOrderConsumer.cs" />
+    <Compile Include="CorrelatingMessages\Consumers\BillOrderCorrelatedConsumer.cs" />
+    <Compile Include="CorrelatingMessages\Consumers\ShipOrderCorrelatedConsumer.cs" />
+    <Compile Include="CorrelatingMessages\Consumers\SubmitOrderCorrelatedConsumer.cs" />
+    <Compile Include="CorrelatingMessages\Contracts\IOrderCorrelatedSubmitted.cs" />
+    <Compile Include="CorrelatingMessages\Contracts\ISubmitOrderCorrelated.cs" />
+    <Compile Include="CorrelatingMessages\CorrelatingMessagesBus.cs" />
     <Compile Include="ProducerConsumer\ProducerConsumerBus.cs" />
     <Compile Include="ProducerConsumer\Consumers\BillOrderConsumer.cs" />
     <Compile Include="ProducerConsumer\Contracts\IOrderShipped.cs" />

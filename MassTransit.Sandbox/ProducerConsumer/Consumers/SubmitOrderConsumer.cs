@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using log4net;
 using MassTransit.Sandbox.ProducerConsumer.Contracts;
 
 namespace MassTransit.Sandbox.ProducerConsumer.Consumers
@@ -7,9 +8,16 @@ namespace MassTransit.Sandbox.ProducerConsumer.Consumers
     public class SubmitOrderConsumer :
         IConsumer<ISubmitOrder>
     {
+        private ILog _logger;
+
         public async Task Consume(ConsumeContext<ISubmitOrder> context)
         {
-            await Console.Out.WriteLineAsync($"Received SubmitOrder: {context.Message.OrderId}");
+
+            _logger = log4net.LogManager.GetLogger(typeof(SubmitOrderConsumer));
+
+            _logger.Info($"Received SubmitOrder: {context.Message.OrderId}");
+
+//            await Console.Out.WriteLineAsync($"Received SubmitOrder: {context.Message.OrderId}");
 
             /*
              * Creates :
