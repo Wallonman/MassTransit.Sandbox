@@ -90,7 +90,7 @@
     <Compile Include="CorrelatingMessages\Consumers\BillOrderCorrelatedConsumer.cs" />
     <Compile Include="CorrelatingMessages\Consumers\ShipOrderCorrelatedConsumer.cs" />
     <Compile Include="CorrelatingMessages\Consumers\SubmitOrderCorrelatedConsumer.cs" />
-    <Compile Include="CorrelatingMessages\Contracts\IOrderCorrelatedSubmitted.cs" />
+    <Compile Include="CorrelatingMessages\Contracts\IOrderSubmittedWithoutCorrelatedBy.cs" />
     <Compile Include="CorrelatingMessages\Contracts\ISubmitOrderCorrelated.cs" />
     <Compile Include="CorrelatingMessages\CorrelatingMessagesBus.cs" />
     <Compile Include="ProducerConsumer\ProducerConsumerBus.cs" />

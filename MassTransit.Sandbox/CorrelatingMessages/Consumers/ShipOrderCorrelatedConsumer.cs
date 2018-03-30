@@ -6,16 +6,23 @@ using MassTransit.Sandbox.CorrelatingMessages.Contracts;
 namespace MassTransit.Sandbox.CorrelatingMessages.Consumers
 {
     public class ShipOrderCorrelatedConsumer :
-        IConsumer<IOrderCorrelatedSubmitted>
+        IConsumer<IOrderSubmittedWithoutCorrelatedBy>
     {
-        private ILog _logger;
+        private readonly ILog _logger = LogManager.GetLogger(typeof(ShipOrderCorrelatedConsumer));
 
-        public async Task Consume(ConsumeContext<IOrderCorrelatedSubmitted> context)
+        public Task Consume(ConsumeContext<IOrderSubmittedWithoutCorrelatedBy> context)
         {
-            _logger = log4net.LogManager.GetLogger(typeof(ShipOrderCorrelatedConsumer));
 
-            _logger.Info($"ShipOrderConsumer Received IOrderSubmitted CorrelationId: {context.Message.CorrelationId}");
+            /*
+             * NO CorrelationId in the message, yet well in the context
+             */
+            _logger.Info($"ShipOrderConsumer Received IOrderSubmitted CorrelationId: {context.CorrelationId}");
+            /*
+             * The conversationId is lways present
+             */
+            _logger.Info($"IOrderSubmitted ConversationId: {context.ConversationId}");
 
+            return Task.CompletedTask;
 
         }
     }

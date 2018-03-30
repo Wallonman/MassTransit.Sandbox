@@ -2,6 +2,12 @@ using System;
 
 namespace MassTransit.Sandbox.CorrelatingMessages.Contracts
 {
+    /// <summary>
+    /// A message that implements the CorrelatedBy&lt;Guid&gt;
+    /// A CorrelationId will be automatically managed by MT
+    /// (if a correlationId is passed by the producer)
+    /// </summary>
+    /// <seealso cref="Guid" />
     public interface ISubmitOrderCorrelated : CorrelatedBy<Guid>
     {
         string OrderId { get; }
@@ -9,15 +15,4 @@ namespace MassTransit.Sandbox.CorrelatingMessages.Contracts
         decimal OrderAmount { get; }
     }
 
-    public class SubmitOrderCorrelated : ISubmitOrderCorrelated
-    {
-        public SubmitOrderCorrelated()
-        {
-            CorrelationId = Guid.NewGuid();
-        }
-        public Guid CorrelationId { get; }
-        public string OrderId { get; }
-        public DateTime OrderDate { get; }
-        public decimal OrderAmount { get; }
-    }
 }
