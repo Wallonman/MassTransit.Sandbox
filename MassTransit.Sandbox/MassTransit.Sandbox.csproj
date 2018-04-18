@@ -86,7 +86,10 @@
   <ItemGroup>
     <Compile Include="Audit\AuditBus.cs" />
     <Compile Include="Audit\AuditStore.cs" />
+    <Compile Include="Audit\ConsumeObserver.cs" />
     <Compile Include="Audit\Consumers\SubmitOrderConsumer.cs" />
+    <Compile Include="Audit\ReceiveObserver.cs" />
+    <Compile Include="Audit\SubmitOrderConsumeObserver.cs" />
     <Compile Include="CorrelatingMessages\Consumers\BillOrderCorrelatedConsumer.cs" />
     <Compile Include="CorrelatingMessages\Consumers\ShipOrderCorrelatedConsumer.cs" />
     <Compile Include="CorrelatingMessages\Consumers\SubmitOrderCorrelatedConsumer.cs" />

@@ -11,6 +11,8 @@ namespace MassTransit.Sandbox.Audit.Consumers
         {
             await Console.Out.WriteLineAsync($"SubmitOrderConsumer received SubmitOrder: {context.Message.OrderId}");
 
+            if (context.Message.OrderId == "2")
+                throw new Exception("Ooops!");
         }
     }
 }

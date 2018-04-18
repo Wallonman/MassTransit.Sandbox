@@ -8,4 +8,11 @@ namespace MassTransit.Sandbox.ProducerConsumer.Contracts
         DateTime OrderDate { get; }
         decimal OrderAmount { get; }
     }
+
+    public class SubmitOrder : ISubmitOrder
+    {
+        public string OrderId { get; set; }
+        public DateTime OrderDate { get; }
+        public decimal OrderAmount { get; }
+    }
 }
