@@ -6,6 +6,7 @@ using GreenPipes;
 using MassTransit.Audit;
 using MassTransit.Sandbox.Audit.Consumers;
 using MassTransit.Sandbox.ProducerConsumer.Contracts;
+using Newtonsoft.Json;
 
 namespace MassTransit.Sandbox.Audit
 {
@@ -22,10 +23,33 @@ namespace MassTransit.Sandbox.Audit
                 Console.WriteLine("'1' -> Observing received and consumed messages ");
                 Console.WriteLine("'2' -> Observing a thrown Exception");
                 Console.WriteLine("'3' -> Observing specific consumed messages");
+                Console.WriteLine("'4' -> Displaying configuration");
                 Console.Write("> ");
                 var value = Console.ReadLine();
 
                 if ("q".Equals(value, StringComparison.OrdinalIgnoreCase))
+                    break;
+
+                switch (value)
+                {
+                    case "1":
+                    case "2":
+                        busControl.GetSendEndpoint(new Uri("rabbitmq://localhost/submit_order_queue"))
+                            .Result
+                            .Send<ISubmitOrder>(new { OrderId = value }); // the value "2" will throw an exception in the consumer
+                        break;
+                    case "3":
+                        busControl.GetSendEndpoint(new Uri("rabbitmq://localhost/submit_order_queue"))
+                            .Result
+                            .Send(new SubmitOrder { OrderId = Guid.NewGuid().ToString() });
+                        break;
+                    case "4":
+                        var probeResult = busControl.GetProbeResult();
+                        Console.Write(JsonConvert.SerializeObject(probeResult));
+                        break;
+                }
+
+                /*if ("q".Equals(value, StringComparison.OrdinalIgnoreCase))
                     break;
 
                 if ("3".Equals(value, StringComparison.OrdinalIgnoreCase))
@@ -33,9 +57,16 @@ namespace MassTransit.Sandbox.Audit
                         .Result
                         .Send(new SubmitOrder {OrderId = Guid.NewGuid().ToString()}); 
                 else
-                    busControl.GetSendEndpoint(new Uri("rabbitmq://localhost/submit_order_queue"))
-                        .Result
-                        .Send<ISubmitOrder>(new {OrderId = value}); // the value "2" will throw an exception in the consumer
+                    if ("3".Equals(value, StringComparison.OrdinalIgnoreCase))
+                        busControl.GetSendEndpoint(new Uri("rabbitmq://localhost/submit_order_queue"))
+                            .Result
+                            .Send<ISubmitOrder>(new {OrderId = value}); // the value "2" will throw an exception in the consumer
+                else
+                    if ("4".Equals(value, StringComparison.OrdinalIgnoreCase))
+                    {
+                        var probeResult = busControl.GetProbeResult();
+                        Console.Write(JsonConvert.SerializeObject(probeResult));
+                    }*/
             } while (true);
             busControl.Stop();
         }
