@@ -22,24 +22,5 @@ namespace MassTransit.Sandbox.Audit
         }
     }
 
-    public class MyConsumeMetadataFactory : IConsumeMetadataFactory
-    {
-        public MessageAuditMetadata CreateAuditMetadata<T>(ConsumeContext<T> context) where T : class
-        {
-            return new MessageAuditMetadata
-            {
-                ContextType = "contextType",
-                ConversationId = context.ConversationId,
-                CorrelationId = context.CorrelationId,
-                InitiatorId = context.InitiatorId,
-                MessageId = context.MessageId,
-                RequestId = context.RequestId,
-                DestinationAddress = context.DestinationAddress?.AbsoluteUri,
-                SourceAddress = context.SourceAddress?.AbsoluteUri,
-                FaultAddress = context.FaultAddress?.AbsoluteUri,
-                ResponseAddress = context.ResponseAddress?.AbsoluteUri,
-                Headers = context.Headers?.GetAll()?.ToDictionary(k => k.Key, v => v.Value.ToString())
-            };
-        }
-    }
+    
 }

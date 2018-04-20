@@ -88,6 +88,7 @@
     <Compile Include="Audit\AuditStore.cs" />
     <Compile Include="Audit\ConsumeObserver.cs" />
     <Compile Include="Audit\Consumers\SubmitOrderConsumer.cs" />
+    <Compile Include="Audit\MyConsumeMetadataFactory.cs" />
     <Compile Include="Audit\ReceiveObserver.cs" />
     <Compile Include="Audit\SubmitOrderConsumeObserver.cs" />
     <Compile Include="CorrelatingMessages\Consumers\BillOrderCorrelatedConsumer.cs" />
