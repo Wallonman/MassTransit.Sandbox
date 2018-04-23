@@ -11,11 +11,12 @@ namespace MassTransit.Sandbox.Audit
             var contextHeaders = context.Headers; // is empty, how to add items in the header ?
             var contextSupportedMessageTypes = context.SupportedMessageTypes;
 
-            if (context.Message is ISubmitOrder)
+            var order = context.Message as ISubmitOrder;
+            if (order != null)
             {
                 // if you want to get access to the message properties
                 // not sure that's a good idea ... 
-                (context.Message as ISubmitOrder).OrderAmount = 1;
+                order.OrderAmount = 1;
             }
 
             await Console.Out.WriteLineAsync($"{DateTime.Now:O} ConsumeObserver.PreConsume message {context.MessageId}");

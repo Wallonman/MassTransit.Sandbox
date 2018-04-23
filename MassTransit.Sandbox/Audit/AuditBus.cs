@@ -49,24 +49,6 @@ namespace MassTransit.Sandbox.Audit
                         break;
                 }
 
-                /*if ("q".Equals(value, StringComparison.OrdinalIgnoreCase))
-                    break;
-
-                if ("3".Equals(value, StringComparison.OrdinalIgnoreCase))
-                    busControl.GetSendEndpoint(new Uri("rabbitmq://localhost/submit_order_queue"))
-                        .Result
-                        .Send(new SubmitOrder {OrderId = Guid.NewGuid().ToString()}); 
-                else
-                    if ("3".Equals(value, StringComparison.OrdinalIgnoreCase))
-                        busControl.GetSendEndpoint(new Uri("rabbitmq://localhost/submit_order_queue"))
-                            .Result
-                            .Send<ISubmitOrder>(new {OrderId = value}); // the value "2" will throw an exception in the consumer
-                else
-                    if ("4".Equals(value, StringComparison.OrdinalIgnoreCase))
-                    {
-                        var probeResult = busControl.GetProbeResult();
-                        Console.Write(JsonConvert.SerializeObject(probeResult));
-                    }*/
             } while (true);
             busControl.Stop();
         }

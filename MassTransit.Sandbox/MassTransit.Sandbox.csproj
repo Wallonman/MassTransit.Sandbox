@@ -97,6 +97,11 @@
     <Compile Include="CorrelatingMessages\Contracts\IOrderSubmittedWithoutCorrelatedBy.cs" />
     <Compile Include="CorrelatingMessages\Contracts\ISubmitOrderCorrelated.cs" />
     <Compile Include="CorrelatingMessages\CorrelatingMessagesBus.cs" />
+    <Compile Include="Middleware\Consumers\SubmitOrderConsumer.cs" />
+    <Compile Include="Middleware\ExampleMiddlewareConfiguratorExtensions.cs" />
+    <Compile Include="Middleware\ExceptionLoggerFilter.cs" />
+    <Compile Include="Middleware\ExceptionLoggerSpecification.cs" />
+    <Compile Include="Middleware\MiddlewareBus.cs" />
     <Compile Include="ProducerConsumer\ProducerConsumerBus.cs" />
     <Compile Include="ProducerConsumer\Consumers\BillOrderConsumer.cs" />
     <Compile Include="ProducerConsumer\Contracts\IOrderShipped.cs" />
