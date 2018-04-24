@@ -24,14 +24,15 @@ namespace MassTransit.Sandbox.Middleware
             try
             {
                 var test = 0;
-                context.Interlocked.Increment(ref _attemptCount);
+                
+                Interlocked.Increment(ref _attemptCount);
                 await next.Send(context);
                 Interlocked.Increment(ref _successCount);
             }
             catch (Exception ex)
             {
                 Interlocked.Increment(ref _exceptionCount);
-                await Console.Out.WriteLineAsync($"An exception occurred: {ex.Message}");
+                await Console.Out.WriteLineAsync($"ExceptionLoggerFilter> An exception occurred: {ex.Message}");
                 // propagate the exception up the call stack
                 throw;
             }
