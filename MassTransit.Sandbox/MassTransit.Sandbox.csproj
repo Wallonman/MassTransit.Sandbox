@@ -110,6 +110,12 @@
     <Compile Include="CorrelatingMessages\Contracts\IOrderSubmittedWithoutCorrelatedBy.cs" />
     <Compile Include="CorrelatingMessages\Contracts\ISubmitOrderCorrelated.cs" />
     <Compile Include="CorrelatingMessages\CorrelatingMessagesBus.cs" />
+    <Compile Include="Middleware\Consumers\CircuitBreakerConsumer.cs" />
+    <Compile Include="Middleware\Consumers\CustomMiddlewareConsumer.cs" />
+    <Compile Include="Middleware\ExampleMiddlewareConfiguratorExtensions.cs" />
+    <Compile Include="Middleware\ExceptionLoggerFilter.cs" />
+    <Compile Include="Middleware\ExceptionLoggerSpecification.cs" />
+    <Compile Include="Middleware\MiddlewareBus.cs" />
     <Compile Include="ProducerConsumer\ProducerConsumerBus.cs" />
     <Compile Include="ProducerConsumer\Consumers\BillOrderConsumer.cs" />
     <Compile Include="ProducerConsumer\Contracts\IOrderShipped.cs" />
