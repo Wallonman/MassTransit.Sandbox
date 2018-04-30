@@ -99,6 +99,7 @@
     <Compile Include="CorrelatingMessages\CorrelatingMessagesBus.cs" />
     <Compile Include="Middleware\Consumers\CircuitBreakerConsumer.cs" />
     <Compile Include="Middleware\Consumers\CustomMiddlewareConsumer.cs" />
+    <Compile Include="Middleware\Consumers\RateLimitConsumer.cs" />
     <Compile Include="Middleware\ExampleMiddlewareConfiguratorExtensions.cs" />
     <Compile Include="Middleware\ExceptionLoggerFilter.cs" />
     <Compile Include="Middleware\ExceptionLoggerSpecification.cs" />

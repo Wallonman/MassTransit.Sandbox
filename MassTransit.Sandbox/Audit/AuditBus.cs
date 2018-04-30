@@ -24,6 +24,7 @@ namespace MassTransit.Sandbox.Audit
                 Console.WriteLine("'2' -> Observing a thrown Exception");
                 Console.WriteLine("'3' -> Observing specific consumed messages");
                 Console.WriteLine("'4' -> Displaying configuration");
+                Console.WriteLine("'5' -> Observing received and consumed multiple messages");
                 Console.Write("> ");
                 var value = Console.ReadLine();
 
@@ -46,6 +47,14 @@ namespace MassTransit.Sandbox.Audit
                     case "4":
                         var probeResult = busControl.GetProbeResult();
                         Console.Write(JsonConvert.SerializeObject(probeResult));
+                        break;
+                    case "5":
+                        busControl.GetSendEndpoint(new Uri("rabbitmq://localhost/submit_order_queue"))
+                            .Result
+                            .Send<ISubmitOrder>(new { OrderId = value }); // the value "2" will throw an exception in the consumer
+                        busControl.GetSendEndpoint(new Uri("rabbitmq://localhost/submit_order_queue"))
+                            .Result
+                            .Send<ISubmitOrder>(new { OrderId = value }); // the value "2" will throw an exception in the consumer
                         break;
                 }
 

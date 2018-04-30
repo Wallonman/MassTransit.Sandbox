@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using GreenPipes;
 using log4net.Config;
 using MassTransit.Log4NetIntegration;
@@ -22,6 +23,7 @@ namespace MassTransit.Sandbox.Middleware
             {
                 Console.WriteLine("'q' to exit");
                 Console.WriteLine("'1' -> Circuit breaker");
+                Console.WriteLine("'2' -> Rate limit");
                 Console.WriteLine("'4' -> Custom");
                 Console.WriteLine("'44' -> Custom with exception");
                 Console.Write("> ");
@@ -36,7 +38,17 @@ namespace MassTransit.Sandbox.Middleware
                         for (int i = 0; i <= 100; i++)
                             busControl.GetSendEndpoint(new Uri("rabbitmq://localhost/middleware_circuit_breaker_queue"))
                                 .Result
-                                .Send<ISubmitOrder>(new { OrderAmount = i}); //new Random().Next(0, 10) });
+                                .Send<ISubmitOrder>(new { OrderAmount = i});
+                        break;
+                    case "2":
+//                        Console.Out.WriteLineAsync($"Start processing at {DateTime.Now.ToString("O")}");
+//                        Stopwatch watch = Stopwatch.StartNew();
+                        for (int i = 0; i <= 100; i++)
+                            busControl.GetSendEndpoint(new Uri("rabbitmq://localhost/middleware_rate_limit_queue"))
+                                .Result
+                                .Send<ISubmitOrder>(new { OrderAmount = i});
+//                        watch.Stop();
+//                        Console.Out.WriteLineAsync($"End processing, duration = {watch.ElapsedMilliseconds}");
                         break;
                     case "4":
                     case "44":
@@ -64,7 +76,7 @@ namespace MassTransit.Sandbox.Middleware
                 cfg.UseLog4Net();
 
                 /*
-                 * Register the message consumer and the middleware custom filter
+                 * Register the message consumer and the middleware Circuit Breaker
                  */
                 cfg.ReceiveEndpoint(host, "middleware_circuit_breaker_queue", e =>
                 {
@@ -76,6 +88,15 @@ namespace MassTransit.Sandbox.Middleware
                         cb.ActiveThreshold = 1;
                         cb.ResetInterval = TimeSpan.FromSeconds(10);
                     });
+                });
+
+                /*
+                 * Register the message consumer and the middleware rate limit
+                 */
+                cfg.ReceiveEndpoint(host, "middleware_rate_limit_queue", e =>
+                {
+                    e.Consumer<RateLimitConsumer>();
+                    e.UseRateLimit(10, TimeSpan.FromSeconds(1));
                 });
 
                 /*

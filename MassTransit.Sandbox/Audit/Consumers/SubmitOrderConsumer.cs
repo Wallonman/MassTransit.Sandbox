@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using MassTransit.Sandbox.ProducerConsumer.Contracts;
 using Newtonsoft.Json;
@@ -14,6 +15,8 @@ namespace MassTransit.Sandbox.Audit.Consumers
 
             if (context.Message.OrderId == "2")
                 throw new Exception("Ooops!");
+
+            Thread.Sleep(1000);
         }
     }
 }
