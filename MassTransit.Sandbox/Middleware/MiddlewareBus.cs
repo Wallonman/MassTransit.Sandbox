@@ -80,7 +80,11 @@ namespace MassTransit.Sandbox.Middleware
                     e.Consumer<CircuitBreakerConsumer>();
                     e.UseCircuitBreaker(cb =>
                     {
-                        cb.TrackingPeriod = TimeSpan.FromSeconds(10);//.FromMilliseconds(100);
+                        // 100 message are going to be pushed, during the consume process
+                        // some message processes will raise exceptions
+                        // the consume process contains sleep() instruction to allow the
+                        // circuit breaker to do its job ! thisis simulation after all, no ?
+                        cb.TrackingPeriod = TimeSpan.FromSeconds(10);
                         cb.TripThreshold = 10;
                         cb.ActiveThreshold = 1;
                         cb.ResetInterval = TimeSpan.FromSeconds(2);
