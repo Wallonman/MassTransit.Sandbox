@@ -80,10 +80,10 @@ namespace MassTransit.Sandbox.Middleware
                     e.Consumer<CircuitBreakerConsumer>();
                     e.UseCircuitBreaker(cb =>
                     {
-                        cb.TrackingPeriod = TimeSpan.FromMilliseconds(100);
-                        cb.TripThreshold = 90;
+                        cb.TrackingPeriod = TimeSpan.FromSeconds(10);//.FromMilliseconds(100);
+                        cb.TripThreshold = 10;
                         cb.ActiveThreshold = 1;
-                        cb.ResetInterval = TimeSpan.FromSeconds(10);
+                        cb.ResetInterval = TimeSpan.FromSeconds(2);
                     });
                 });
 
@@ -100,7 +100,8 @@ namespace MassTransit.Sandbox.Middleware
                  * Register the message consumer and the middleware custom filter
                  */
                 cfg.ReceiveEndpoint(host, "middleware_custom_queue", e => { e.Consumer<CustomMiddlewareConsumer>(); });
-                cfg.UseExceptionLogger();
+
+//                cfg.UseExceptionLogger();
 
             });
 

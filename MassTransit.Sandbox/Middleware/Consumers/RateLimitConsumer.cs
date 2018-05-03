@@ -14,7 +14,6 @@ namespace MassTransit.Sandbox.Middleware.Consumers
 
             await Console.Out.WriteLineAsync($"{DateTime.Now:O}> RateLimitConsumer received SubmitOrder: {JsonConvert.SerializeObject(context.Message)}");
 
-//            Thread.Sleep(200);
         }
     }
 }
