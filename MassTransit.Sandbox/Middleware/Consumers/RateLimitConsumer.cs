@@ -12,7 +12,7 @@ namespace MassTransit.Sandbox.Middleware.Consumers
         public async Task Consume(ConsumeContext<ISubmitOrder> context)
         {
 
-            await Console.Out.WriteLineAsync($"RateLimitConsumer received SubmitOrder: {JsonConvert.SerializeObject(context.Message)}");
+            await Console.Out.WriteLineAsync($"{DateTime.Now:O}> RateLimitConsumer received SubmitOrder: {JsonConvert.SerializeObject(context.Message)}");
 
 //            Thread.Sleep(200);
         }

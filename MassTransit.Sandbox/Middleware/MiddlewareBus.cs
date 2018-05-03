@@ -41,14 +41,11 @@ namespace MassTransit.Sandbox.Middleware
                                 .Send<ISubmitOrder>(new { OrderAmount = i});
                         break;
                     case "2":
-//                        Console.Out.WriteLineAsync($"Start processing at {DateTime.Now.ToString("O")}");
-//                        Stopwatch watch = Stopwatch.StartNew();
-                        for (int i = 0; i <= 100; i++)
+                        Console.Out.WriteLineAsync($"{DateTime.Now:O}> Start processing at ");
+                        for (int i = 0; i <= 10; i++)
                             busControl.GetSendEndpoint(new Uri("rabbitmq://localhost/middleware_rate_limit_queue"))
                                 .Result
                                 .Send<ISubmitOrder>(new { OrderAmount = i});
-//                        watch.Stop();
-//                        Console.Out.WriteLineAsync($"End processing, duration = {watch.ElapsedMilliseconds}");
                         break;
                     case "4":
                     case "44":
@@ -96,7 +93,7 @@ namespace MassTransit.Sandbox.Middleware
                 cfg.ReceiveEndpoint(host, "middleware_rate_limit_queue", e =>
                 {
                     e.Consumer<RateLimitConsumer>();
-                    e.UseRateLimit(10, TimeSpan.FromSeconds(1));
+                    e.UseRateLimit(1, TimeSpan.FromSeconds(1));
                 });
 
                 /*
