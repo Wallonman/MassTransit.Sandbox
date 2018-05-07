@@ -32,7 +32,7 @@ namespace MassTransit.Sandbox.Middleware
             catch (Exception ex)
             {
                 Interlocked.Increment(ref _exceptionCount);
-                await Console.Out.WriteLineAsync($"ExceptionLoggerFilter> An exception occurred: {ex.Message}");
+                await Console.Out.WriteLineAsync($"{DateTime.Now:O}> ExceptionLoggerFilter > An exception occurred: {ex.Message} / exception count {_exceptionCount}");
                 // propagate the exception up the call stack
                 throw;
             }

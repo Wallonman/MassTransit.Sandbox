@@ -111,6 +111,7 @@
     <Compile Include="CorrelatingMessages\Contracts\ISubmitOrderCorrelated.cs" />
     <Compile Include="CorrelatingMessages\CorrelatingMessagesBus.cs" />
     <Compile Include="Middleware\Consumers\CircuitBreakerConsumer.cs" />
+    <Compile Include="Middleware\Consumers\CircuitBreakerSuccessConsumer.cs" />
     <Compile Include="Middleware\Consumers\CustomMiddlewareConsumer.cs" />
     <Compile Include="Middleware\Consumers\RateLimitConsumer.cs" />
     <Compile Include="Middleware\ExampleMiddlewareConfiguratorExtensions.cs" />
@@ -129,6 +130,10 @@
     <Compile Include="HandlingExceptions\Consumers\FaultConsumer.cs" />
     <Compile Include="HandlingExceptions\Consumers\GenerateExceptionConsumer.cs" />
     <Compile Include="HandlingExceptions\HandlingExceptionsBus.cs" />
+    <Compile Include="RequestResponse\Consumers\CheckOrderStatusConsumer.cs" />
+    <Compile Include="RequestResponse\Contracts\CheckOrderStatus.cs" />
+    <Compile Include="RequestResponse\Contracts\OrderStatusResult.cs" />
+    <Compile Include="RequestResponse\RequestResponseBus.cs" />
     <Compile Include="Scheduling\PollExternalSystemSchedule.cs" />
     <Compile Include="Scheduling\ISendNotification.cs" />
     <Compile Include="Scheduling\IScheduleNotification.cs" />

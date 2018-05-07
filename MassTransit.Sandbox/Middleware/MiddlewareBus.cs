@@ -11,10 +11,14 @@ namespace MassTransit.Sandbox.Middleware
 {
     public static class MiddlewareBus
     {
+        private static CircuitBreakerSuccessConsumer _consumer;
+
         public static void Start()
         {
             // load the Log4Net config from app.config
             XmlConfigurator.Configure();
+
+            _consumer = new CircuitBreakerSuccessConsumer();
 
             var busControl = ConfigureBus();
 
@@ -22,9 +26,10 @@ namespace MassTransit.Sandbox.Middleware
             do
             {
                 Console.WriteLine("'q' to exit");
-                Console.WriteLine("'1' -> Circuit breaker");
-                Console.WriteLine("'2' -> Rate limit");
-                Console.WriteLine("'4' -> Custom");
+                Console.WriteLine("'1'  -> Chao monkey with Circuit breaker");
+                Console.WriteLine("'11' -> Chao monkey without Circuit breaker");
+                Console.WriteLine("'2 ' -> Rate limit");
+                Console.WriteLine("'4 ' -> Custom");
                 Console.WriteLine("'44' -> Custom with exception");
                 Console.Write("> ");
                 var value = Console.ReadLine();
@@ -32,11 +37,19 @@ namespace MassTransit.Sandbox.Middleware
                 if ("q".Equals(value, StringComparison.OrdinalIgnoreCase))
                     break;
 
+                _consumer.SuccessCount = 0;
+
                 switch (value)
                 {
                     case "1":
                         for (int i = 0; i <= 100; i++)
                             busControl.GetSendEndpoint(new Uri("rabbitmq://localhost/middleware_circuit_breaker_queue"))
+                                .Result
+                                .Send<ISubmitOrder>(new { OrderAmount = i});
+                        break;
+                    case "11":
+                        for (int i = 0; i <= 100; i++)
+                            busControl.GetSendEndpoint(new Uri("rabbitmq://localhost/middleware_without_circuit_breaker_queue"))
                                 .Result
                                 .Send<ISubmitOrder>(new { OrderAmount = i});
                         break;
@@ -83,12 +96,28 @@ namespace MassTransit.Sandbox.Middleware
                         // 100 message are going to be pushed, during the consume process
                         // some message processes will raise exceptions
                         // the consume process contains sleep() instruction to allow the
-                        // circuit breaker to do its job ! thisis simulation after all, no ?
+                        // circuit breaker to do its job ! this is simulation after all, no ?
                         cb.TrackingPeriod = TimeSpan.FromSeconds(10);
                         cb.TripThreshold = 10;
                         cb.ActiveThreshold = 1;
                         cb.ResetInterval = TimeSpan.FromSeconds(2);
                     });
+                });
+
+                /*
+                 * Register the message consumer without the middleware Circuit Breaker
+                 */
+                cfg.ReceiveEndpoint(host, "middleware_without_circuit_breaker_queue", e =>
+                {
+                    e.Consumer<CircuitBreakerConsumer>();
+                });
+
+                /*
+                 * Register the message consumer for messages successfuly processed
+                 */
+                cfg.ReceiveEndpoint(host, "middleware_circuit_breaker_queue_success", e =>
+                {
+                    e.Consumer(() => _consumer);
                 });
 
                 /*
@@ -105,7 +134,7 @@ namespace MassTransit.Sandbox.Middleware
                  */
                 cfg.ReceiveEndpoint(host, "middleware_custom_queue", e => { e.Consumer<CustomMiddlewareConsumer>(); });
 
-//                cfg.UseExceptionLogger();
+                cfg.UseExceptionLogger();
 
             });
 

@@ -9,6 +9,8 @@ namespace MassTransit.Sandbox.Middleware.Consumers
     public class CircuitBreakerConsumer :
         IConsumer<ISubmitOrder>
     {
+
+
         public async Task Consume(ConsumeContext<ISubmitOrder> context)
         {
 
@@ -18,7 +20,7 @@ namespace MassTransit.Sandbox.Middleware.Consumers
             if (context.Message.OrderAmount > 20 && context.Message.OrderAmount < 40)
             {
                 Thread.Sleep(1000);
-                throw new TimeoutException("Chao monkey is there!");
+                throw new TimeoutException($"Chao monkey {context.Message.OrderAmount} is there!");
             }
 
             // otherwise forward the message to the output queues
