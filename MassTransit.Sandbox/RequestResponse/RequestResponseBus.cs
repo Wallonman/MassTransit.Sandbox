@@ -219,11 +219,10 @@ namespace MassTransit.Sandbox.RequestResponse
                              */
                             var exception = e.InnerException as RequestFaultException;
                             if (exception != null)
-                            {
-                                var ex = exception;
-                                Console.WriteLine($"{DateTime.Now:O} {ex.Fault.Exceptions[0].Message}");
-                            }
+                                // we've got an exception rasied by the consumer !
+                                Console.WriteLine($"{DateTime.Now:O} {exception.Fault.Exceptions[0].Message}");
                             else
+                                // re-throw any unexpected exceptions
                                 throw;
                         }
 
