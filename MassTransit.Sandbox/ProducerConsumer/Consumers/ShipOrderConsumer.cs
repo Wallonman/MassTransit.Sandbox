@@ -14,7 +14,9 @@ namespace MassTransit.Sandbox.ProducerConsumer.Consumers
         {
             _logger = log4net.LogManager.GetLogger(typeof(ShipOrderConsumer));
 
-            _logger.Info($"ShipOrderConsumer Received IOrderSubmitted: {context.Message.OrderId}");
+            _logger.Info($"ShipOrderConsumer Received IOrderSubmitted: {context.Message.OrderId}, with customer header {context.Headers.Get("test", "empty")}");
+
+            
 //            await Console.Out.WriteLineAsync($"ShipOrderConsumer Received IOrderSubmitted: {context.Message.OrderId}");
 
             /*

@@ -29,7 +29,7 @@ namespace MassTransit.Sandbox.ProducerConsumer.Consumers
             {
                 OrderId = context.Message.OrderId,
                 OrderDate = context.Message.OrderDate,
-            });
+            }, publishContext => publishContext.Headers.Set("test", "test value"));
         }
     }
 }
