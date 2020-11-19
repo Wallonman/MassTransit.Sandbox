@@ -52,7 +52,7 @@ namespace MassTransit.Sandbox.CorrelatingMessages
         {
             var bus = MassTransit.Bus.Factory.CreateUsingRabbitMq(cfg =>
             {
-                var host = cfg.Host(new Uri("rabbitmq://localhost"), h =>
+                cfg.Host(new Uri("rabbitmq://localhost"), h =>
                 {
                     h.Username("guest");
                     h.Password("guest");
@@ -64,17 +64,17 @@ namespace MassTransit.Sandbox.CorrelatingMessages
                 // tel MT to use a specific message property as correlationId
                 MessageCorrelation.UseCorrelationId<IOrderSubmittedWithoutCorrelatedBy>(x => x.SomeGuidValue);
 
-                cfg.ReceiveEndpoint(host, "submit_order_correlated_queue", e =>
+                cfg.ReceiveEndpoint("submit_order_correlated_queue", e =>
                 {
                     e.Consumer<SubmitOrderCorrelatedConsumer>();
                 });
  
-                cfg.ReceiveEndpoint(host, "ship_order_correlated_queue", e =>
+                cfg.ReceiveEndpoint("ship_order_correlated_queue", e =>
                 {
                     e.Consumer<ShipOrderCorrelatedConsumer>();
                 });
  
-                cfg.ReceiveEndpoint(host, "bill_order_correlated_queue", e =>
+                cfg.ReceiveEndpoint("bill_order_correlated_queue", e =>
                 {
                     e.Consumer<BillOrderCorrelatedConsumer>();
                 });

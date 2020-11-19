@@ -8,6 +8,7 @@ using MassTransit.Scheduling;
 using MassTransit.Util;
 using Quartz;
 using Quartz.Impl;
+using Quartz.Simpl;
 
 namespace MassTransit.Sandbox.Scheduling
 {
@@ -28,7 +29,7 @@ namespace MassTransit.Sandbox.Scheduling
             var busControl = ConfigureBus(scheduler);
 
             // set the Quartz JobFactory, that will give the scheduler the ability to create MT jobs
-            scheduler.JobFactory = new MassTransitJobFactory(busControl);
+            scheduler.JobFactory = new MassTransitJobFactory(busControl, new SimpleJobFactory());
 
             // now start the scheduler
             await scheduler.Start();
@@ -70,8 +71,8 @@ namespace MassTransit.Sandbox.Scheduling
                          * scheduled for 5 seconds later
                          */
                         Console.WriteLine("Sending SendNotificationCommand in 5 seconds");
-                        await busControl.GetSendEndpoint(SchedulerAddress)
-                            .Result.ScheduleSend(new Uri("rabbitmq://localhost/notification_queue"),
+                        await busControl.CreateMessageScheduler(new Uri("rabbitmq://localhost/notification_queue"))
+                                .ScheduleSend(new Uri("rabbitmq://localhost/notification_queue"),
                                 TimeSpan.FromSeconds(5),
                                 new ScheduleNotificationConsumer.SendNotificationCommand
                                 {
@@ -126,7 +127,7 @@ namespace MassTransit.Sandbox.Scheduling
         {
             var bus = Bus.Factory.CreateUsingRabbitMq(cfg =>
             {
-                var host = cfg.Host(new Uri("rabbitmq://localhost"), h =>
+                cfg.Host(new Uri("rabbitmq://localhost"), h =>
                 {
                     h.Username("guest");
                     h.Password("guest");
@@ -148,7 +149,7 @@ namespace MassTransit.Sandbox.Scheduling
                  *          - MassTransit.Scheduling:ScheduleMessage
                  *          - MassTransit.Scheduling:ScheduleRecurringMessage
                  */
-                cfg.ReceiveEndpoint(host, "quartz",
+                cfg.ReceiveEndpoint("quartz",
                     e => { e.Consumer(() => new ScheduleMessageConsumer(scheduler)); });
 
                 /*
@@ -157,7 +158,7 @@ namespace MassTransit.Sandbox.Scheduling
                  * Exchange : MassTransit.Sandbox.Scheduling:IScheduleNotification => exchange schedule_notification_queue
                  * Queue : schedule_notification_queue
                  */
-                cfg.ReceiveEndpoint(host, "schedule_notification_queue",
+                cfg.ReceiveEndpoint("schedule_notification_queue",
                     e => { e.Consumer<ScheduleNotificationConsumer>(); });
 
                 /*
@@ -166,7 +167,7 @@ namespace MassTransit.Sandbox.Scheduling
                  * Exchange : MassTransit.Sandbox.Scheduling:ISendNotification => exchange notification_queue
                  * Queue : notification_queue
                  */
-                cfg.ReceiveEndpoint(host, "notification_queue", e => { e.Consumer<NotificationConsumer>(); });
+                cfg.ReceiveEndpoint("notification_queue", e => { e.Consumer<NotificationConsumer>(); });
             });
 
             return bus;

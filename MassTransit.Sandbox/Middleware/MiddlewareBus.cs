@@ -77,7 +77,7 @@ namespace MassTransit.Sandbox.Middleware
         {
             var bus = Bus.Factory.CreateUsingRabbitMq(cfg =>
             {
-                var host = cfg.Host(new Uri("rabbitmq://localhost"), h =>
+                cfg.Host(new Uri("rabbitmq://localhost"), h =>
                 {
                     h.Username("guest");
                     h.Password("guest");
@@ -88,7 +88,7 @@ namespace MassTransit.Sandbox.Middleware
                 /*
                  * Register the message consumer and the middleware Circuit Breaker
                  */
-                cfg.ReceiveEndpoint(host, "middleware_circuit_breaker_queue", e =>
+                cfg.ReceiveEndpoint("middleware_circuit_breaker_queue", e =>
                 {
                     e.Consumer<CircuitBreakerConsumer>();
                     e.UseCircuitBreaker(cb =>
@@ -107,7 +107,7 @@ namespace MassTransit.Sandbox.Middleware
                 /*
                  * Register the message consumer without the middleware Circuit Breaker
                  */
-                cfg.ReceiveEndpoint(host, "middleware_without_circuit_breaker_queue", e =>
+                cfg.ReceiveEndpoint("middleware_without_circuit_breaker_queue", e =>
                 {
                     e.Consumer<CircuitBreakerConsumer>();
                 });
@@ -115,7 +115,7 @@ namespace MassTransit.Sandbox.Middleware
                 /*
                  * Register the message consumer for messages successfuly processed
                  */
-                cfg.ReceiveEndpoint(host, "middleware_circuit_breaker_queue_success", e =>
+                cfg.ReceiveEndpoint("middleware_circuit_breaker_queue_success", e =>
                 {
                     e.Consumer(() => _consumer);
                 });
@@ -123,7 +123,7 @@ namespace MassTransit.Sandbox.Middleware
                 /*
                  * Register the message consumer and the middleware rate limit
                  */
-                cfg.ReceiveEndpoint(host, "middleware_rate_limit_queue", e =>
+                cfg.ReceiveEndpoint("middleware_rate_limit_queue", e =>
                 {
                     e.Consumer<RateLimitConsumer>();
                     e.UseRateLimit(1, TimeSpan.FromSeconds(1));
@@ -132,7 +132,7 @@ namespace MassTransit.Sandbox.Middleware
                 /*
                  * Register the message consumer and the middleware custom filter
                  */
-                cfg.ReceiveEndpoint(host, "middleware_custom_queue", e => { e.Consumer<CustomMiddlewareConsumer>(); });
+                cfg.ReceiveEndpoint("middleware_custom_queue", e => { e.Consumer<CustomMiddlewareConsumer>(); });
 
                 cfg.UseExceptionLogger();
 

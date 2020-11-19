@@ -46,7 +46,7 @@ namespace MassTransit.Sandbox.ProducerConsumer
         {
             var bus = MassTransit.Bus.Factory.CreateUsingRabbitMq(cfg =>
             {
-                var host = cfg.Host(new Uri("rabbitmq://localhost"), h =>
+                cfg.Host(new Uri("rabbitmq://localhost"), h =>
                 {
                     h.Username("guest");
                     h.Password("guest");
@@ -55,7 +55,7 @@ namespace MassTransit.Sandbox.ProducerConsumer
                 // request the log to Log4Net
                 cfg.UseLog4Net();
 
-                cfg.ReceiveEndpoint(host, "submit_order_queue", e =>
+                cfg.ReceiveEndpoint("submit_order_queue", e =>
                 {
                     /*
                      * Creates :
@@ -71,14 +71,14 @@ namespace MassTransit.Sandbox.ProducerConsumer
                  * Exchange : MassTransit.Sandbox.Consumer:IOrderSubmitted => exchange ship_order_queue
                  * Queue : ship_order_queue
                  */
-                cfg.ReceiveEndpoint(host, "ship_order_queue", e => { e.Consumer<ShipOrderConsumer>(); });
+                cfg.ReceiveEndpoint("ship_order_queue", e => { e.Consumer<ShipOrderConsumer>(); });
                 /*
                  * Creates :
                  * Exchange : bill_order_queue => queue bill_order_queue
                  * Exchange : MassTransit.Sandbox.Consumer:IOrderSubmitted => exchange bill_order_queue
                  * Queue : bill_order_queue
                  */
-                cfg.ReceiveEndpoint(host, "bill_order_queue", e => { e.Consumer<BillOrderConsumer>(); });
+                cfg.ReceiveEndpoint("bill_order_queue", e => { e.Consumer<BillOrderConsumer>(); });
             });
 
 

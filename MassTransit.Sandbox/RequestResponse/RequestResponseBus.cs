@@ -46,15 +46,13 @@ namespace MassTransit.Sandbox.RequestResponse
                          * Creates the response queue bus-WINBOOK-MassTransit.Sandbox.RequestResponse-yyyyyyb8yyfyyx1zbdk5jec9r5
                          * with autodelete = true and expiration = 60000 ms
                         */
-                        var client =
-                            new MessageRequestClient<CheckOrderStatus, OrderStatusResult>(busControl, new Uri("rabbitmq://localhost/check_order_queue"), TimeSpan.FromSeconds(30));
+                        var client = busControl.CreateClientFactory().CreateRequestClient<CheckOrderStatus>(new Uri("rabbitmq://localhost/check_order_queue"), TimeSpan.FromSeconds(30));
                         try
                         {
                             // send the message expecting the response in the Task Result
-                            var result = client.
-                                Request(new CheckOrderStatus { OrderId = value }).Result;
+                            var result = client.GetResponse<OrderStatusResult>(new CheckOrderStatus { OrderId = value }).Result;
                             Console.Out.WriteLine(
-                                $"{DateTime.Now:O} Received status {result.StatusText} ({result.StatusCode}) for OrderId {result.OrderId}");
+                                $"{DateTime.Now:O} Received status {result.Message.StatusText} ({result.Message.StatusCode}) for OrderId {result.Message.OrderId}");
                             /*
                              * The payload received in the response queue is
                              * 
@@ -237,7 +235,7 @@ namespace MassTransit.Sandbox.RequestResponse
         {
             var bus = MassTransit.Bus.Factory.CreateUsingRabbitMq(cfg =>
             {
-                var host = cfg.Host(new Uri("rabbitmq://localhost"), h =>
+                cfg.Host(new Uri("rabbitmq://localhost"), h =>
                 {
                     h.Username("guest");
                     h.Password("guest");
@@ -246,7 +244,7 @@ namespace MassTransit.Sandbox.RequestResponse
                 // request the log to Log4Net
                 cfg.UseLog4Net();
 
-                cfg.ReceiveEndpoint(host, "check_order_queue", e =>
+                cfg.ReceiveEndpoint("check_order_queue", e =>
                 {
                     e.Consumer<CheckOrderStatusConsumer>();
                 });

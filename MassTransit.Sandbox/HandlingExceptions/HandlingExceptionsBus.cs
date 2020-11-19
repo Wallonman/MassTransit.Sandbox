@@ -88,7 +88,7 @@ namespace MassTransit.Sandbox.HandlingExceptions
         {
             var bus = Bus.Factory.CreateUsingRabbitMq(cfg =>
             {
-                var host = cfg.Host(new Uri("rabbitmq://localhost"), h =>
+                cfg.Host(new Uri("rabbitmq://localhost"), h =>
                 {
                     h.Username("guest");
                     h.Password("guest");
@@ -97,7 +97,7 @@ namespace MassTransit.Sandbox.HandlingExceptions
                 // general bus configration for retry Policy
                 cfg.UseRetry(configurator => configurator.None());
 
-                cfg.ReceiveEndpoint(host, "submit_order_queue", e =>
+                cfg.ReceiveEndpoint("submit_order_queue", e =>
                 {
                     e.Consumer<GenerateExceptionConsumer>();
                 });
@@ -108,19 +108,19 @@ namespace MassTransit.Sandbox.HandlingExceptions
                  *            MassTransit:Fault--MassTransit.Sandbox.Step1.Contracts:ISubmitOrder => submit_order_fault
                  * Queue : submit_order_fault
                  */
-                cfg.ReceiveEndpoint(host, "submit_order_fault", e =>
+                cfg.ReceiveEndpoint("submit_order_fault", e =>
                 {
                     e.Consumer<FaultConsumer>();
                 });
 
-                cfg.ReceiveEndpoint(host, "submit_order_queue_retry", e =>
+                cfg.ReceiveEndpoint("submit_order_queue_retry", e =>
                 {
                     // override the general retry policy
                     e.UseRetry(configurator => configurator.Incremental(3, new TimeSpan(0,0,1), new TimeSpan(0, 0, 1)));
                     e.Consumer<GenerateExceptionConsumer>();
                 });
 
-                cfg.ReceiveEndpoint(host, "submit_order_queue_retry_ignored", e =>
+                cfg.ReceiveEndpoint("submit_order_queue_retry_ignored", e =>
                 {
                     // override the general retry policy
                     e.Consumer<GenerateExceptionConsumer>(consumerConfig =>

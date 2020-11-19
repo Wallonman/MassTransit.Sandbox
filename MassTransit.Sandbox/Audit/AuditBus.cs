@@ -66,7 +66,7 @@ namespace MassTransit.Sandbox.Audit
         {
             var bus = Bus.Factory.CreateUsingRabbitMq(cfg =>
             {
-                var host = cfg.Host(new Uri("rabbitmq://localhost"), h =>
+                cfg.Host(new Uri("rabbitmq://localhost"), h =>
                 {
                     h.Username("guest");
                     h.Password("guest");
@@ -75,7 +75,7 @@ namespace MassTransit.Sandbox.Audit
                 /*
                  * Register the message consumer
                  */
-                cfg.ReceiveEndpoint(host, "submit_order_queue", e => { e.Consumer<SubmitOrderConsumer>(); });
+                cfg.ReceiveEndpoint("submit_order_queue", e => { e.Consumer<SubmitOrderConsumer>(); });
             });
 
             /*
