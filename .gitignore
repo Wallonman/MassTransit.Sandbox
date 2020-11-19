@@ -13,3 +13,4 @@ packages
 /.vs/MassTransit.Sandbox/v15/sqlite3/db.lock
 /.vs/MassTransit.Sandbox/v15/sqlite3/storage.ide-shm
 /.vs/MassTransit.Sandbox/v15/sqlite3/storage.ide-wal
+/.vs/MassTransit.Sandbox/v16/Server/sqlite3
